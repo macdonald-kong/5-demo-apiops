@@ -17,7 +17,7 @@ paths:
 
   /headers:
     get:
-      summary: Returns the request headers.
+      summary: Returns the request headers only.
       description: Header service
       operationId: v1GetHeaders
       tags:
