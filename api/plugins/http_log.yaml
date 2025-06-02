@@ -4,7 +4,8 @@ plugins:
   config:
     content_type: application/json
     custom_fields_by_lua:
-      client_ip: return '********'
+      client_ip: return '******'
+      kong.request.uri: return '******'
     flush_timeout: null
     headers: {}
     http_endpoint: http://filebeat.observability:9000
