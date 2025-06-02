@@ -47,7 +47,6 @@ jobs:
 
     - name: URL Encode Variables
       run: |
-        echo "API_PRODUCT_NAME_ENCODED=$(echo ${{ env.API_PRODUCT_NAME }} | sed 's/ /%20/g')"  >> $GITHUB_ENV
         echo "KONNECT_CONTROL_PLANE_NAME_ENCODED=$(echo ${{ vars.KONNECT_CONTROL_PLANE_NAME }} | sed 's/ /%20/g')"  >> $GITHUB_ENV
 
     # Set Variables needed for plugins and service name used by decK
