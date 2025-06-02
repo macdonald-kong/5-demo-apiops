@@ -179,16 +179,6 @@ jobs:
           --konnect-control-plane-name ${{ vars.KONNECT_CONTROL_PLANE_NAME }} \
           --select-tag ${{ env.DECK_GATEWAY_SERVICE_NAME }}
 
-    # Set a Variable containing the Service ID of the Service that we deployed - we need this to link the API Product to a Kong Service
-
-    - name: Get Service ID
-      id: get-service-id
-      run: |
-        echo "SERVICE_ID=$(curl \
-          --url "${{ vars.KONNECT_ADDRESS }}/v2/control-planes/${{ env.KONNECT_CONTROL_PLANE_ID}}/core-entities/services?tags=${{ env.DECK_GATEWAY_SERVICE_NAME }}" \
-          --header 'accept: application/json' \
-          --header "Authorization: Bearer ${{ secrets.KONNECT_TOKEN }}" | jq -r '.data[0].id')" >> "$GITHUB_ENV"
-
     #######################################
     #
     #   TESTING STAGE
