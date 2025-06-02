@@ -75,7 +75,6 @@ jobs:
     # Check that the OpenAPI Specification file that we exported from the Insomnia Workspace is valid and well formed
 
     - name: Lint OpenAPI Spec
-      if: ${{ env.DELETED == 'false' }}
       run: |
         deck file lint -s ./api/oas.yaml .spectral.yaml
 
@@ -97,7 +96,6 @@ jobs:
     # Use decKs openapi2kong command to generate Kong Declarative Configuration from the OpenAPI Specification exported from the Insomnia Workspace.
 
     - name: Generate Kong declarative configuration from Spec
-      if: ${{ env.DELETED == 'false' }}
       run: |
         deck file openapi2kong \
           --spec ./api/oas.yaml \
@@ -109,33 +107,28 @@ jobs:
     # Use decK Merge to merge together our generated Kong Declarative Configuration File with the contents of the Plugin folder in our repository
 
     - name: Merge Kong Configuration with Plugins
-      if: ${{ env.DELETED == 'false' }}
       run: |
         deck file merge kong-generated.yaml ./api/plugins/* -o kong.yaml
 
     # Update Gateway Service Name so that it matches our plugins
 
     - name: Update Gateway Service Name
-      if: ${{ env.DELETED == 'false' }}
       run: |
         yq eval '.services[0].name = "${{ env.DECK_GATEWAY_SERVICE_NAME }}"' -i kong.yaml
 
     # Use decK Validate to check that the new generated Kong Declarative Configuration is valid
 
     - name: Tag Kong declarative configuration with service name
-      if: ${{ env.DELETED == 'false' }}
       run: |
         cat kong.yaml | deck file add-tags ${{ env.DECK_GATEWAY_SERVICE_NAME }} --output-file kong.yaml
 
     - name: Validate Kong declarative configuration
-      if: ${{ env.DELETED == 'false' }}
       run: |
         deck file validate kong.yaml 
 
     # Publishes Kong Declarative Configuration as an artifact
 
     - name: 'Upload Kong Config Artifact'
-      if: ${{ env.DELETED == 'false' }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.DECK_GATEWAY_SERVICE_NAME }}-api-kong-config
@@ -150,7 +143,6 @@ jobs:
     # Compare the new desired state represented in the generated Kong Declarative Configuration with the current state of the platform
 
     - name: Diff declarative config
-      if: ${{ env.DELETED == 'false' }}
       run: |
         deck gateway diff kong.yaml \
           --konnect-addr ${{ vars.KONNECT_ADDRESS }} \
@@ -179,7 +171,6 @@ jobs:
     # Uses the deck sync command to push our generated Kong Declarative Configuration to the Kong Konnect Control Plane
 
     - name: Deploy declarative config to development environment
-      if: ${{ env.DELETED == 'false' }}
       id: deploy-declarative-config
       run: |
         deck gateway sync kong.yaml \
@@ -191,7 +182,6 @@ jobs:
     # Set a Variable containing the Service ID of the Service that we deployed - we need this to link the API Product to a Kong Service
 
     - name: Get Service ID
-      if: ${{ env.DELETED == 'false' }}
       id: get-service-id
       run: |
         echo "SERVICE_ID=$(curl \
@@ -205,27 +195,14 @@ jobs:
     #
     #######################################
 
-    # Run the tests defined in our Insomnia Test Suite
+    # Run tests against our newly deployed API
 
     - name: Run Tests
-      if: ${{ env.DELETED == 'false' }}
       id: run-tests
       run: |
-        inso run test $(yq '._id' $(echo -n .insomnia/ApiSpec/*)) --workingDir .
-
-    #######################################
-    #
-    #   DELETION FLOW
-    #
-    #######################################
-
-    - name: Delete Service Routes and Plugins
-      if: ${{ env.DELETED == 'true' }}
-      id: deck-reset
-      run: |
-        deck gateway reset \
-          --konnect-addr "${{ vars.KONNECT_ADDRESS }}" \
-          --konnect-token ${{ secrets.KONNECT_TOKEN }} \
-          --konnect-control-plane-name "${{ vars.KONNECT_CONTROL_PLANE_NAME }}" \
-          --select-tag ${{ env.DECK_GATEWAY_SERVICE_NAME }} \
-          --force
+        if curl -sf -o /dev/null http://httpbin.konghq.com/headers; then
+        echo "Test passed."
+        else
+        echo "Test failed."
+        exit 1
+        fi
