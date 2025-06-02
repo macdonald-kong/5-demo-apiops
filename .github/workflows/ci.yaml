@@ -69,7 +69,7 @@ jobs:
     - name: Lint OpenAPI Spec
       if: ${{ env.DELETED == 'false' }}
       run: |
-        inso lint spec ./api/oas.yaml
+        deck file lint -s ./api/oas.yaml .spectral.yaml
 
     # Use decK Ping to check that we can connect to the Kong Konnect Control Plane
 
