@@ -11,7 +11,7 @@ servers:
 
 tags:
   - name: headers
-    description: Operations for testing headers
+    description: Operations for testing http headers
 
 paths:
 
