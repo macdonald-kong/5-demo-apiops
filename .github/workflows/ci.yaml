@@ -41,8 +41,8 @@ jobs:
 
     - name: Set Variables from OAS
       run: |
-        echo "API_NAME=$(yq .info.title ./api/config/oas.yaml)" >> $GITHUB_ENV
-        echo "API_VERSION=$(yq .info.version ./api/config/oas.yaml)" >> $GITHUB_ENV
+        echo "API_NAME=$(yq .info.title ./api/oas.yaml)" >> $GITHUB_ENV
+        echo "API_VERSION=$(yq .info.version ./api/oas.yaml)" >> $GITHUB_ENV
 
     # The Konnect Control Plane Name and API Product Names might include characters that need to be URL encoded.
 
