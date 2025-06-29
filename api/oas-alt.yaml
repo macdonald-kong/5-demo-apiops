@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  version: '1'
+  version: '1.0'
   title: HTTPBin-JSON
   description: HTTPBin JSON Demo Spec v1.3
   contact: 
@@ -13,10 +13,89 @@ tags:
   - name: json
     description: Operations for testing json responses
 
+x-kong-plugin-rate-limiting:
+  name: rate-limiting
+  enabled: true
+  config:
+    minute: 10
+    policy: local
+
+x-kong-plugin-cors:
+  name: cors
+  enabled: true
+  config:
+    credentials: false
+    exposed_headers: null
+    headers: null
+    max_age: null
+    methods:
+    - GET
+    - HEAD
+    - PUT
+    - PATCH
+    - POST
+    - DELETE
+    - OPTIONS
+    - TRACE
+    - CONNECT
+    origins: null
+    preflight_continue: false
+  enabled: true
+  protocols:
+  - grpc
+  - grpcs
+  - http
+  - https
+
+x-kong-plugin-http-log:
+  name: http-log
+  enabled: true
+  config:
+    content_type: application/json
+    custom_fields_by_lua:
+      client_ip: return '******'
+    flush_timeout: null
+    headers: {}
+    http_endpoint: http://filebeat.observability:9000
+    keepalive: 60000
+    method: POST
+    queue:
+      concurrency_limit: 1
+      initial_retry_delay: 0.01
+      max_batch_size: 1
+      max_bytes: null
+      max_coalescing_delay: 1
+      max_entries: 10000
+      max_retry_delay: 60
+      max_retry_time: 60
+    queue_size: null
+    retry_count: null
+    timeout: 10000
+  enabled: true
+  name: http-log
+  protocols:
+    - grpc
+    - grpcs
+    - http
+    - https
+
 paths:
   /headers:
     get:
       summary: Returns the json payload only.
+      x-kong-plugin-proxy-cache:
+        name: proxy-cache
+        enabled: true
+        config:
+          response_code:
+          - 200
+          request_method:
+          - GET
+          - HEAD
+          content_type:
+          - application/json; charset=utf-8
+          cache_ttl: 10
+          strategy: memory
       description: JSON service
       operationId: v1GetJson
       tags:

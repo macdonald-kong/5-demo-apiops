@@ -39,29 +39,23 @@ jobs:
 
     # Read the configuration file and the OpenAPI Spec and populate the variables that we will be using
 
-    - name: Set Variables from Config
+    - name: Set Variables from OAS
       run: |
-        echo "API_PRODUCT_NAME=$(yq .productName ./api/config/meta.yaml)" >> $GITHUB_ENV
-        echo "API_PRODUCT_DESCRIPTION=$(yq .productDescription ./api/config/meta.yaml)" >> $GITHUB_ENV
-        echo "API_PRODUCT_VERSION=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
-        echo "API_PRODUCT_PUBLISH=$(yq .productPublish ./api/config/meta.yaml)" >> $GITHUB_ENV
-        echo "API_PRODUCT_DEPRECATED=$(yq .productDeprecated ./api/config/meta.yaml)" >> $GITHUB_ENV
-        echo "API_PRODUCT_VERSION_STATUS=$(yq .productVersionStatus ./api/config/meta.yaml)" >> $GITHUB_ENV
-        echo "PORTAL_ID=$(yq .portalId ./api/config/meta.yaml)" >> $GITHUB_ENV
-        echo "DELETED=$(yq .deleted ./api/config/meta.yaml)" >> $GITHUB_ENV
+        echo "API_NAME=$(yq .info.title ./api/config/oas.yaml)" >> $GITHUB_ENV
+        echo "API_VERSION=$(yq .info.version ./api/config/oas.yaml)" >> $GITHUB_ENV
 
     # The Konnect Control Plane Name and API Product Names might include characters that need to be URL encoded.
 
     - name: URL Encode Variables
       run: |
-        echo "API_PRODUCT_NAME_ENCODED=$(echo ${{ env.API_PRODUCT_NAME }} | sed 's/ /%20/g')"  >> $GITHUB_ENV
+        echo "API_PRODUCT_NAME_ENCODED=$(echo ${{ env.API_NAME }} | sed 's/ /%20/g')"  >> $GITHUB_ENV
         echo "KONNECT_CONTROL_PLANE_NAME_ENCODED=$(echo ${{ vars.KONNECT_CONTROL_PLANE_NAME }} | sed 's/ /%20/g')"  >> $GITHUB_ENV
 
     # Set Variables needed for plugins and service name used by decK
 
     - name: Set decK Env Variables
       run: |
-        echo "DECK_GATEWAY_SERVICE_NAME=$(echo $API_PRODUCT_NAME_ENCODED-$API_PRODUCT_VERSION)"  >> $GITHUB_ENV
+        echo "DECK_GATEWAY_SERVICE_NAME=$(echo $API_PRODUCT_NAME_ENCODED-$API_VERSION)"  >> $GITHUB_ENV
 
     # Use the Konnect Control Plane Name to search for the ID using the Konnect Control Plane API
 
