@@ -14,7 +14,7 @@ tags:
     description: Operations for testing json responses
 
 paths:
-  /headers:
+  /json:
     get:
       summary: Returns the json payload only.
       description: JSON service
