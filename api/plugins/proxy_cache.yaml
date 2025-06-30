@@ -9,5 +9,5 @@ plugins:
     - HEAD
     content_type:
     - application/json; charset=utf-8
-    cache_ttl: 10
+    cache_ttl: 30
     strategy: memory
